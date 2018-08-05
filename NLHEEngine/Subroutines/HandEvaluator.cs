@@ -52,6 +52,7 @@ namespace NLHEEngine.Subroutines
             else return 0;
         }
 
+        //TODO: test ace straight
         public byte IsStraight(HandForEval hnd)
         {
             bool inStraight = false;
@@ -75,12 +76,18 @@ namespace NLHEEngine.Subroutines
                     straightHigh = 0;
                 }
 
+                //handle early escapes, ace to five straight and normal straight return
                 if (i >= 3 && strCnt < 2) return 0;
-                if (strCnt == 5) return straightHigh;
+                else if (strCnt == 4 && straightHigh == 5)
+                {
+                    for (byte j = 0; j < 6; j++)
+                        if (hnd.SevCards[j].FaceValue == 14) return straightHigh;
+                } else if (strCnt == 5) return straightHigh;
             }
             return 0;
         }
 
+        //TODO: fix ace straight flush
         public byte[] GetStraightFlush(HandForEval hnd, byte suit)
         {
             byte[] retStrength = new byte[2];
@@ -112,7 +119,16 @@ namespace NLHEEngine.Subroutines
                     inStraight = false;
                     straightHigh = 0;
                 }
-                if (strCnt == 5)
+
+                if (strCnt == 4 && straightHigh == 5)
+                {
+                    for (byte j = 0; j<6;j++)
+                        if (hnd.SevCards[j].FaceValue==5 && hnd.SevCards[j].SuitValue == suit)
+                        {
+                            retStrength[0] = 1;
+                            retStrength[1] = straightHigh;
+                        }
+                } else if (strCnt == 5)
                 {
                     retStrength[0] = 1;
                     retStrength[1] = straightHigh;
@@ -147,8 +163,7 @@ namespace NLHEEngine.Subroutines
             //val of high pair, second best pair, set, quad
             byte[] matches = new byte[4];
 
-            // TODO: make sure this size will work with the best high card hand. 
-            //in my model of hand strength match-type hands have a max of 5 vals
+            //in my model of hand strength match-type hands have a max of 6 vals
             byte[] retStrength = new byte[6];
 
             byte grpSize = 1;
@@ -213,8 +228,10 @@ namespace NLHEEngine.Subroutines
                                 break;
                             }
                         case 2:
+                            //handle 2nd pair
                             if (matches[0] > 0 && matches[1] == 0)
                                 matches[1] = hnd.SevCards[i - 1].FaceValue;
+                            //handle 3 pairs
                             else if (matches[0] > 0 && matches[1] > 0)
                                 break;
                             else matches[0] = hnd.SevCards[i - 1].FaceValue;
@@ -223,7 +240,7 @@ namespace NLHEEngine.Subroutines
                 }
             }
 
-            //create the hand strength from the matches we found
+            //create the hand strength from the matches found
             //quads
             if (matches[3] > 0)
             {

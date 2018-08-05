@@ -25,7 +25,7 @@ namespace NLHEEngine.TestSubroutines
         {
             Console.WriteLine("In Test Sort\n\n");
             HandEvaluator HE = new HandEvaluator();
-            var testHands = MakeRandomTestHands();
+            var testHands = MakeExplicitTestHands();
             byte isFlush;
             foreach (var th in testHands)
             {
@@ -92,6 +92,26 @@ namespace NLHEEngine.TestSubroutines
         public HandForEval[] MakeExplicitTestHands()
         {
             return new HandForEval[]{
+                //str flush wheel
+                new HandForEval(
+                new Card(14, 1),
+                new Card(9, 1),
+                new Card(2, 1),
+                new Card(3, 1),
+                new Card(4, 1),
+                new Card(5, 1),
+                new Card(9, 4)
+                ),
+                //wheel
+                new HandForEval(
+                new Card(14, 1),
+                new Card(9, 1),
+                new Card(2, 1),
+                new Card(3, 2),
+                new Card(4, 4),
+                new Card(5, 3),
+                new Card(9, 4)
+                ),
                 //straight with 2 pair
                 new HandForEval(
                 new Card(5, 1),

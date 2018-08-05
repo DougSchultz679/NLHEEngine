@@ -10,6 +10,7 @@ namespace NLHEEngine.Models
     {
         public Card[] SevCards = new Card[7];
 
+        //TODO: determine if this is useful in any cases
         public int[] HandStrength;
 
         public HandForEval(params Card[] crds)
@@ -17,7 +18,7 @@ namespace NLHEEngine.Models
             SevCards = this.SortCards(crds);
         }
 
-        //TODO: Ensure the right winner is chosen. basically implements CompareTo
+        //TODO: Ensure the right winner is chosen.
         int IComparable.CompareTo(object obj)
         {
             HandForEval B = (HandForEval)obj;
@@ -36,7 +37,6 @@ namespace NLHEEngine.Models
             }
             return 0;
         }
-
 
         public Card[] SortCards(params Card[] crds)
         {

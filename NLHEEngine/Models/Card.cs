@@ -8,6 +8,7 @@ namespace NLHEEngine.Models
 {
     public class Card
     {
+        //TODO: determine if these enums are useful and or can be used to do useful things
         public enum Suit { Club = 1, Spade = 2, Heart = 3, Diamond = 4 }
         public enum Face { Two = 2, Three = 3, Four = 4, Five = 5, Six = 6, Seven = 7, Eight = 8, Nine = 9, Ten = 10, Jack = 11, Queen = 12, King = 13, Ace = 14 }
         public byte FaceValue { get; set; }
