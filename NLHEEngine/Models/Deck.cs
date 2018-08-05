@@ -81,7 +81,7 @@ namespace NLHEEngine.Models
                     }
                 }
 
-                //shuffle last 10 cards into the deck
+                //shuffle last 10 cards into the deck. starting from the end becuase the above actions always result in 52 being assigned to Order[51];
                 var rng2 = new Random(DateTime.Now.Minute);
                 int idx, tmp;
                 for (int k = 51; k > 41; k--)
