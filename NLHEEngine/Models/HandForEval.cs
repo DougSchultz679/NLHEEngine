@@ -19,6 +19,7 @@ namespace NLHEEngine.Models
         }
 
         //TODO: Ensure the right winner is chosen.
+        //todo: this actually doesnt work becuase the first handstrength digit ascends in strength towards 1
         int IComparable.CompareTo(object obj)
         {
             HandForEval B = (HandForEval)obj;

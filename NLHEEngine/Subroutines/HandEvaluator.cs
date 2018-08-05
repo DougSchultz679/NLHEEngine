@@ -23,7 +23,7 @@ namespace NLHEEngine.Subroutines
 
             byte[] matchStrength = this.GetMatchStrength(hnd);
 
-            if (matchStrength[0] < 4) return matchStrength;
+            if (matchStrength[0] > 6) return matchStrength;
 
             if (isFlush > 0) return this.GetFlushStrength(hnd, isFlush);
             if (isStraight > 0) return new byte[] { 5, isStraight };
@@ -52,7 +52,6 @@ namespace NLHEEngine.Subroutines
             else return 0;
         }
 
-        //TODO: test ace straight
         public byte IsStraight(HandForEval hnd)
         {
             bool inStraight = false;
@@ -87,7 +86,6 @@ namespace NLHEEngine.Subroutines
             return 0;
         }
 
-        //TODO: fix ace straight flush
         public byte[] GetStraightFlush(HandForEval hnd, byte suit)
         {
             byte[] retStrength = new byte[2];
@@ -125,12 +123,12 @@ namespace NLHEEngine.Subroutines
                     for (byte j = 0; j<6;j++)
                         if (hnd.SevCards[j].FaceValue==5 && hnd.SevCards[j].SuitValue == suit)
                         {
-                            retStrength[0] = 1;
+                            retStrength[0] = 9;
                             retStrength[1] = straightHigh;
                         }
                 } else if (strCnt == 5)
                 {
-                    retStrength[0] = 1;
+                    retStrength[0] = 9;
                     retStrength[1] = straightHigh;
                 }
             }
@@ -140,7 +138,7 @@ namespace NLHEEngine.Subroutines
         public byte[] GetFlushStrength(HandForEval hnd, byte suit)
         {
             byte[] retStrength = new byte[6];
-            retStrength[0] = 4;
+            retStrength[0] = 6;
 
             byte retIdx = 1;
             for (byte i = 0; i < hnd.SevCards.Length; i++)
@@ -244,7 +242,7 @@ namespace NLHEEngine.Subroutines
             //quads
             if (matches[3] > 0)
             {
-                retStrength[0] = 2;
+                retStrength[0] = 8;
                 retStrength[1] = matches[3];
 
                 //fetchKicker
@@ -260,14 +258,14 @@ namespace NLHEEngine.Subroutines
             //boat
             else if (matches[2] > 0 && matches[0] > 0)
             {
-                retStrength[0] = 3;
+                retStrength[0] = 7;
                 retStrength[1] = matches[2];
                 retStrength[2] = matches[0];
             }
             //trips
             else if (matches[2] > 0)
             {
-                retStrength[0] = 6;
+                retStrength[0] = 4;
                 retStrength[1] = matches[2];
 
                 //fetch 2 Kickers
@@ -285,7 +283,7 @@ namespace NLHEEngine.Subroutines
             //2 pair
             else if (matches[1] > 0)
             {
-                retStrength[0] = 7;
+                retStrength[0] = 3;
                 retStrength[1] = matches[0];
                 retStrength[2] = matches[1];
 
@@ -303,7 +301,7 @@ namespace NLHEEngine.Subroutines
             //single pair
             else if (matches[0] > 0)
             {
-                retStrength[0] = 8;
+                retStrength[0] = 2;
                 retStrength[1] = matches[0];
 
                 //fetch 3 Kickers
@@ -329,7 +327,7 @@ namespace NLHEEngine.Subroutines
         {
             //TODO: confirm that all 5 kickers are compared in the rules
             byte[] retStrength = new byte[6];
-            retStrength[0] = 9;
+            retStrength[0] = 1;
 
             for (byte i = 0; i < 5; i++)
                 retStrength[i + 1] = hnd.SevCards[i].FaceValue;

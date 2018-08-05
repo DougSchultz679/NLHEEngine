@@ -64,7 +64,6 @@ namespace NLHEEngine.TestSubroutines
                 Console.WriteLine("Total Strength: {0}",
                     String.Join(" ", HE.GetStrength(th)));
             }
-
         }
 
         public HandForEval[] MakeRandomTestHands()
