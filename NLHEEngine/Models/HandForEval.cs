@@ -1,4 +1,5 @@
-﻿using System;
+﻿using NLHEEngine.Subroutines;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -9,27 +10,27 @@ namespace NLHEEngine.Models
     public class HandForEval : IComparable
     {
         public Card[] SevCards = new Card[7];
+        private HandEvaluator _handEvaluator = new HandEvaluator();
 
-        //TODO: determine if this is useful in any cases
-        public int[] HandStrength;
+        public byte[] HandStrength;
 
         public HandForEval(params Card[] crds)
         {
             SevCards = this.SortCards(crds);
+            HandStrength = _handEvaluator.GetStrength(this);
         }
 
         //TODO: Ensure the right winner is chosen.
-        //todo: this actually doesnt work becuase the first handstrength digit ascends in strength towards 1
-        int IComparable.CompareTo(object obj)
+        public int CompareTo(object obj)
         {
             HandForEval B = (HandForEval)obj;
             try
             {
-                for (int i = 0; i < 5; i++)
+                for (int i = 0; i < 6; i++)
                 {
-                    if (this.HandStrength[i] < B.HandStrength[i])
+                    if (this.HandStrength[i] > B.HandStrength[i])
                         return 1;
-                    else if (this.HandStrength[i] > B.HandStrength[i])
+                    else if (B.HandStrength[i] > this.HandStrength[i])
                         return -1;
                 }
             } catch (IndexOutOfRangeException ex)
@@ -39,7 +40,7 @@ namespace NLHEEngine.Models
             return 0;
         }
 
-        public Card[] SortCards(params Card[] crds)
+        private Card[] SortCards(params Card[] crds)
         {
             List<Card> RetCrds = new List<Card>(crds);
             RetCrds.Sort(Card.sortCardsDescending());

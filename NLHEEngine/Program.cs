@@ -16,8 +16,11 @@ namespace NLHEEngine
             TestSubroutine TS = new TestSubroutine();
 
             //TS.TestDeck();
+            //TS.TestHandEvaluation();
+            TS.TestShowdown();
 
-            TS.TestSort();
+
+            //Console.WriteLine( "***** In game loop ***** ");
 
             Console.ReadLine();
         }

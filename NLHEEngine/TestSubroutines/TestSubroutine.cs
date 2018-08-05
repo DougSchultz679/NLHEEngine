@@ -21,52 +21,81 @@ namespace NLHEEngine.TestSubroutines
             }
         }
 
-        public void TestSort()
-        {
-            Console.WriteLine("In Test Sort\n\n");
-            HandEvaluator HE = new HandEvaluator();
-            var testHands = MakeExplicitTestHands();
-            byte isFlush;
-            foreach (var th in testHands)
-            {
-                Console.WriteLine("\nNext Hand:");
-                foreach (var c in th.SevCards)
-                    Console.WriteLine("{0}: {1}", c.SuitValue, c.FaceValue);
-                isFlush = HE.IsFlush(th);
-                Console.WriteLine("Straight strength: {0}", HE.IsStraight(th));
-                Console.WriteLine("Is flush?: {0}", isFlush);
-                Console.WriteLine("Straight flush strength: {0}",
-                    String.Join(" ", HE.GetStraightFlush(th, isFlush)));
-                Console.WriteLine("Flush strength: {0}",
-                    String.Join(" ", HE.GetFlushStrength(th, isFlush)));
-                Console.WriteLine("Group based hand strength: {0}",
-                    String.Join(" ", HE.GetMatchStrength(th)));
-                Console.WriteLine("Total Strength: {0}",
-                    String.Join(" ",HE.GetStrength(th)));
-            }
+        //TODO: Convert this block to tests.
+        //public void TestHandEvaluation()
+        //{
+        //    Console.WriteLine("In Test Hand Evaluation\n\n");
+        //    HandEvaluator HE = new HandEvaluator();
+        //    var testHands = MakeSevenRandomTestHands();
+        //    byte isFlush;
+        //    foreach (var th in testHands)
+        //    {
+        //        Console.WriteLine("\nNext Hand:");
+        //        foreach (var c in th.SevCards)
+        //            Console.WriteLine("{0}: {1}", c.SuitValue, c.FaceValue);
+        //        isFlush = HE.IsFlush(th);
+        //        Console.WriteLine("Straight strength: {0}", HE.IsStraight(th));
+        //        Console.WriteLine("Is flush?: {0}", isFlush);
+        //        Console.WriteLine("Straight flush strength: {0}",
+        //            String.Join(" ", HE.GetStraightFlush(th, isFlush)));
+        //        Console.WriteLine("Flush strength: {0}",
+        //            String.Join(" ", HE.GetFlushStrength(th, isFlush)));
+        //        Console.WriteLine("Group based hand strength: {0}",
+        //            String.Join(" ", HE.GetMatchStrength(th)));
+        //        Console.WriteLine("Total Strength: {0}",
+        //            String.Join(" ",HE.GetStrength(th)));
+        //    }
+        //}
 
-            var testHands2 = MakeRandomTestHands();
-            byte isFlush2;
-            foreach (var th in testHands2)
+        public void TestShowdown()
+        {
+            Console.WriteLine("In Test Showdown\n");
+
+            HandEvaluator HE = new HandEvaluator();
+            HandForEval[] testHands = MakeExplicitTestHands();
+            
+            for (int i = 0; i < testHands.Length-1; i += 2)
             {
-                Console.WriteLine("\nNext Hand:");
-                foreach (var c in th.SevCards)
-                    Console.WriteLine("{0}: {1}", c.SuitValue, c.FaceValue);
-                isFlush2 = HE.IsFlush(th);
-                Console.WriteLine("Straight strength: {0}", HE.IsStraight(th));
-                Console.WriteLine("Is flush?: {0}", isFlush2);
-                Console.WriteLine("Straight flush strength: {0}",
-                    String.Join(" ", HE.GetStraightFlush(th, isFlush2)));
-                Console.WriteLine("Flush strength: {0}",
-                    String.Join(" ", HE.GetFlushStrength(th, isFlush2)));
-                Console.WriteLine("Group based hand strength: {0}",
-                    String.Join(" ", HE.GetMatchStrength(th)));
-                Console.WriteLine("Total Strength: {0}",
-                    String.Join(" ", HE.GetStrength(th)));
+                Console.WriteLine("Next Showdown");
+                Card c1, c2;
+                for (int j = 0; j < 7; j++)
+                {
+                    c1 = testHands[i].SevCards[j];
+                    c2 = testHands[i + 1].SevCards[j];
+                    Console.WriteLine("{0}: {1}\t {2}: {3}", 
+                        c1.SuitValue, c1.FaceValue, c2.SuitValue, c2.FaceValue);
+                }
+                Console.WriteLine("Showdown Winner: {0}", 
+                    testHands[i].CompareTo(testHands[i+1]));
+                Console.WriteLine("A Hand Strength: {0}", String.Join(" ",testHands[i].HandStrength));
+                Console.WriteLine("A Hand Strength: {0}", String.Join(" ", testHands[i+1].HandStrength));
+
             }
         }
 
-        public HandForEval[] MakeRandomTestHands()
+        public HandForEval[] MakeSixRandomTestHands()
+        {
+            Deck newDeck = new Deck();
+            int deckIdx = 0;
+            HandForEval[] retSet = new HandForEval[6];
+
+            for (int i = 0; i < retSet.Length; i++)
+            {
+                retSet[i] = new HandForEval(
+                    newDeck.Cards[deckIdx],
+                    newDeck.Cards[deckIdx + 1],
+                    newDeck.Cards[deckIdx + 2],
+                    newDeck.Cards[deckIdx + 3],
+                    newDeck.Cards[deckIdx + 4],
+                    newDeck.Cards[deckIdx + 5],
+                    newDeck.Cards[deckIdx + 6]
+                    );
+                deckIdx += 7;
+            }
+            return retSet;
+        }
+
+        public HandForEval[] MakeSevenRandomTestHands()
         {
             Deck newDeck = new Deck();
             int deckIdx = 0;

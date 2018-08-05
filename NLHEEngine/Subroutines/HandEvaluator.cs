@@ -9,6 +9,16 @@ namespace NLHEEngine.Subroutines
 {
     public class HandEvaluator
     {
+        private const byte HIGHCARD = 1;
+        private const byte ONEPAIR = 2;
+        private const byte TWOPAIR = 3;
+        private const byte SET = 4;
+        private const byte STRAIGHT = 5;
+        private const byte FLUSH = 6;
+        private const byte FULLHOUSE = 7;
+        private const byte QUADS = 8;
+        private const byte STRAIGHTFLUSH = 9;
+
         public byte[] GetStrength(HandForEval hnd)
         {
             byte isFlush = this.IsFlush(hnd);
@@ -23,15 +33,15 @@ namespace NLHEEngine.Subroutines
 
             byte[] matchStrength = this.GetMatchStrength(hnd);
 
-            if (matchStrength[0] > 6) return matchStrength;
+            if (matchStrength[0] > FLUSH) return matchStrength;
 
             if (isFlush > 0) return this.GetFlushStrength(hnd, isFlush);
-            if (isStraight > 0) return new byte[] { 5, isStraight };
+            if (isStraight > 0) return new byte[] { STRAIGHT, isStraight };
 
             return matchStrength;
         }
 
-        public byte IsFlush(HandForEval hnd)
+        private byte IsFlush(HandForEval hnd)
         {
             byte numClub, numDia, numHrt, numSpd;
             numClub = numDia = numHrt = numSpd = 0;
@@ -52,47 +62,47 @@ namespace NLHEEngine.Subroutines
             else return 0;
         }
 
-        public byte IsStraight(HandForEval hnd)
+        private byte IsStraight(HandForEval hnd)
         {
             bool inStraight = false;
             byte straightHigh = 0;
-            byte strCnt = 1;
+            byte straightCount = 1;
             for (byte i = 0; i < 6; i++)
             {
                 if (!inStraight && hnd.SevCards[i].FaceValue == hnd.SevCards[i + 1].FaceValue + 1)
                 {
-                    strCnt++;
+                    straightCount++;
                     straightHigh = hnd.SevCards[i].FaceValue;
                     inStraight = true;
                 } else if (inStraight && hnd.SevCards[i].FaceValue == hnd.SevCards[i + 1].FaceValue + 1)
-                    strCnt++;
+                    straightCount++;
                 else if (inStraight && hnd.SevCards[i].FaceValue == hnd.SevCards[i + 1].FaceValue)
                     ;
                 else
                 {
-                    strCnt = 1;
+                    straightCount = 1;
                     inStraight = false;
                     straightHigh = 0;
                 }
 
                 //handle early escapes, ace to five straight and normal straight return
-                if (i >= 3 && strCnt < 2) return 0;
-                else if (strCnt == 4 && straightHigh == 5)
+                if (i >= 3 && straightCount < 2) return 0;
+                else if (straightCount == 4 && straightHigh == 5)
                 {
                     for (byte j = 0; j < 6; j++)
                         if (hnd.SevCards[j].FaceValue == 14) return straightHigh;
-                } else if (strCnt == 5) return straightHigh;
+                } else if (straightCount == 5) return straightHigh;
             }
             return 0;
         }
 
-        public byte[] GetStraightFlush(HandForEval hnd, byte suit)
+        private byte[] GetStraightFlush(HandForEval hnd, byte suit)
         {
             byte[] retStrength = new byte[2];
             byte straightHigh = 0;
             bool inStraight = false;
 
-            byte strCnt = 1;
+            byte straightCount = 1;
             for (byte i = 0; i < 6; i++)
             {
                 if (!inStraight
@@ -100,7 +110,7 @@ namespace NLHEEngine.Subroutines
                     && hnd.SevCards[i].SuitValue == suit
                     && hnd.SevCards[i + 1].SuitValue == suit)
                 {
-                    strCnt++;
+                    straightCount++;
                     inStraight = true;
                     straightHigh = hnd.SevCards[i].FaceValue;
                 } else if (inStraight
@@ -108,37 +118,37 @@ namespace NLHEEngine.Subroutines
                         && hnd.SevCards[i].SuitValue == suit
                         && hnd.SevCards[i + 1].SuitValue == suit)
                 {
-                    strCnt++;
+                    straightCount++;
                 } else if (inStraight && hnd.SevCards[i].FaceValue == hnd.SevCards[i + 1].FaceValue)
                     ;
                 else
                 {
-                    strCnt = 1;
+                    straightCount = 1;
                     inStraight = false;
                     straightHigh = 0;
                 }
 
-                if (strCnt == 4 && straightHigh == 5)
+                if (straightCount == 4 && straightHigh == 5)
                 {
                     for (byte j = 0; j<6;j++)
                         if (hnd.SevCards[j].FaceValue==5 && hnd.SevCards[j].SuitValue == suit)
                         {
-                            retStrength[0] = 9;
+                            retStrength[0] = STRAIGHTFLUSH;
                             retStrength[1] = straightHigh;
                         }
-                } else if (strCnt == 5)
+                } else if (straightCount == 5)
                 {
-                    retStrength[0] = 9;
+                    retStrength[0] = STRAIGHTFLUSH;
                     retStrength[1] = straightHigh;
                 }
             }
             return retStrength;
         }
 
-        public byte[] GetFlushStrength(HandForEval hnd, byte suit)
+        private byte[] GetFlushStrength(HandForEval hnd, byte suit)
         {
             byte[] retStrength = new byte[6];
-            retStrength[0] = 6;
+            retStrength[0] = FLUSH;
 
             byte retIdx = 1;
             for (byte i = 0; i < hnd.SevCards.Length; i++)
@@ -156,7 +166,7 @@ namespace NLHEEngine.Subroutines
             return retStrength;
         }
 
-        public byte[] GetMatchStrength(HandForEval hnd)
+        private byte[] GetMatchStrength(HandForEval hnd)
         {
             //val of high pair, second best pair, set, quad
             byte[] matches = new byte[4];
@@ -242,7 +252,7 @@ namespace NLHEEngine.Subroutines
             //quads
             if (matches[3] > 0)
             {
-                retStrength[0] = 8;
+                retStrength[0] = QUADS;
                 retStrength[1] = matches[3];
 
                 //fetchKicker
@@ -258,14 +268,14 @@ namespace NLHEEngine.Subroutines
             //boat
             else if (matches[2] > 0 && matches[0] > 0)
             {
-                retStrength[0] = 7;
+                retStrength[0] = FULLHOUSE;
                 retStrength[1] = matches[2];
                 retStrength[2] = matches[0];
             }
             //trips
             else if (matches[2] > 0)
             {
-                retStrength[0] = 4;
+                retStrength[0] = SET;
                 retStrength[1] = matches[2];
 
                 //fetch 2 Kickers
@@ -283,7 +293,7 @@ namespace NLHEEngine.Subroutines
             //2 pair
             else if (matches[1] > 0)
             {
-                retStrength[0] = 3;
+                retStrength[0] = TWOPAIR;
                 retStrength[1] = matches[0];
                 retStrength[2] = matches[1];
 
@@ -301,11 +311,10 @@ namespace NLHEEngine.Subroutines
             //single pair
             else if (matches[0] > 0)
             {
-                retStrength[0] = 2;
+                retStrength[0] = ONEPAIR;
                 retStrength[1] = matches[0];
 
                 //fetch 3 Kickers
-                //TODO: confirm that 3 kickers are relevant to showdown by rules
                 byte idx = 2;
                 for (byte i = 0; i < hnd.SevCards.Length; i++)
                 {
@@ -325,9 +334,8 @@ namespace NLHEEngine.Subroutines
 
         private byte[] GetHighCardStrength(HandForEval hnd)
         {
-            //TODO: confirm that all 5 kickers are compared in the rules
             byte[] retStrength = new byte[6];
-            retStrength[0] = 1;
+            retStrength[0] = HIGHCARD;
 
             for (byte i = 0; i < 5; i++)
                 retStrength[i + 1] = hnd.SevCards[i].FaceValue;
