@@ -35,7 +35,7 @@ namespace NLHEEngine.Models
             Card[] NewDeck()
             {
                 Card[] Deck = new Card[52];
-                int currFace, currSuit;
+                byte currFace, currSuit;
                 currFace = 2;
                 currSuit = 1;
 

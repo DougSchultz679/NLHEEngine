@@ -26,16 +26,43 @@ namespace NLHEEngine.TestSubroutines
             Console.WriteLine("In Test Sort\n\n");
             HandEvaluator HE = new HandEvaluator();
             var testHands = MakeRandomTestHands();
+            byte isFlush;
             foreach (var th in testHands)
             {
-                Console.WriteLine("Next Hand:");
+                Console.WriteLine("\nNext Hand:");
                 foreach (var c in th.SevCards)
                     Console.WriteLine("{0}: {1}", c.SuitValue, c.FaceValue);
-
-                Console.WriteLine("Is straight?: {0}", HE.IsStraight(th));
-                Console.WriteLine("Is flush?: {0}", HE.IsFlush(th));
+                isFlush = HE.IsFlush(th);
+                Console.WriteLine("Straight strength: {0}", HE.IsStraight(th));
+                Console.WriteLine("Is flush?: {0}", isFlush);
+                Console.WriteLine("Straight flush strength: {0}",
+                    String.Join(" ", HE.GetStraightFlush(th, isFlush)));
+                Console.WriteLine("Flush strength: {0}",
+                    String.Join(" ", HE.GetFlushStrength(th, isFlush)));
                 Console.WriteLine("Group based hand strength: {0}",
-                    String.Join(" ",HE.GetMatchStrength(th)));
+                    String.Join(" ", HE.GetMatchStrength(th)));
+                Console.WriteLine("Total Strength: {0}",
+                    String.Join(" ",HE.GetStrength(th)));
+            }
+
+            var testHands2 = MakeRandomTestHands();
+            byte isFlush2;
+            foreach (var th in testHands2)
+            {
+                Console.WriteLine("\nNext Hand:");
+                foreach (var c in th.SevCards)
+                    Console.WriteLine("{0}: {1}", c.SuitValue, c.FaceValue);
+                isFlush2 = HE.IsFlush(th);
+                Console.WriteLine("Straight strength: {0}", HE.IsStraight(th));
+                Console.WriteLine("Is flush?: {0}", isFlush2);
+                Console.WriteLine("Straight flush strength: {0}",
+                    String.Join(" ", HE.GetStraightFlush(th, isFlush2)));
+                Console.WriteLine("Flush strength: {0}",
+                    String.Join(" ", HE.GetFlushStrength(th, isFlush2)));
+                Console.WriteLine("Group based hand strength: {0}",
+                    String.Join(" ", HE.GetMatchStrength(th)));
+                Console.WriteLine("Total Strength: {0}",
+                    String.Join(" ", HE.GetStrength(th)));
             }
 
         }
@@ -50,12 +77,12 @@ namespace NLHEEngine.TestSubroutines
             {
                 retSet[i] = new HandForEval(
                     newDeck.Cards[deckIdx],
-                    newDeck.Cards[deckIdx+1],
-                    newDeck.Cards[deckIdx+2],
-                    newDeck.Cards[deckIdx+3],
-                    newDeck.Cards[deckIdx+4],
-                    newDeck.Cards[deckIdx+5],
-                    newDeck.Cards[deckIdx+6]
+                    newDeck.Cards[deckIdx + 1],
+                    newDeck.Cards[deckIdx + 2],
+                    newDeck.Cards[deckIdx + 3],
+                    newDeck.Cards[deckIdx + 4],
+                    newDeck.Cards[deckIdx + 5],
+                    newDeck.Cards[deckIdx + 6]
                     );
                 deckIdx += 7;
             }
@@ -65,6 +92,46 @@ namespace NLHEEngine.TestSubroutines
         public HandForEval[] MakeExplicitTestHands()
         {
             return new HandForEval[]{
+                //straight with 2 pair
+                new HandForEval(
+                new Card(5, 1),
+                new Card(6, 1),
+                new Card(7, 1),
+                new Card(7, 2),
+                new Card(8, 4),
+                new Card(9, 3),
+                new Card(6, 4)
+                ),
+                //straight with set
+                new HandForEval(
+                new Card(6, 1),
+                new Card(7, 1),
+                new Card(7, 1),
+                new Card(7, 2),
+                new Card(8, 4),
+                new Card(9, 3),
+                new Card(10, 4)
+                ),
+                 //straight with pair
+                new HandForEval(
+                new Card(5, 1),
+                new Card(6, 1),
+                new Card(7, 1),
+                new Card(7, 2),
+                new Card(8, 4),
+                new Card(9, 3),
+                new Card(14, 4)
+                ),
+                 //3 pairs
+                new HandForEval(
+                new Card(5, 1),
+                new Card(5, 1),
+                new Card(7, 1),
+                new Card(7, 2),
+                new Card(2, 4),
+                new Card(14, 3),
+                new Card(14, 4)
+                ),
                 //2 sets
                 new HandForEval(
                 new Card(5, 1),
@@ -134,7 +201,7 @@ namespace NLHEEngine.TestSubroutines
                 new Card(7, 4),
                 new Card(14, 3),
                 new Card(14, 4)
-                )                
+                )
             };
         }
 

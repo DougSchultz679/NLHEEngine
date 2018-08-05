@@ -10,10 +10,10 @@ namespace NLHEEngine.Models
     {
         public enum Suit { Club = 1, Spade = 2, Heart = 3, Diamond = 4 }
         public enum Face { Two = 2, Three = 3, Four = 4, Five = 5, Six = 6, Seven = 7, Eight = 8, Nine = 9, Ten = 10, Jack = 11, Queen = 12, King = 13, Ace = 14 }
-        public int FaceValue { get; set; }
-        public int SuitValue { get; set; }
+        public byte FaceValue { get; set; }
+        public byte SuitValue { get; set; }
 
-        public Card(int _faceValue, int _suitValue)
+        public Card(byte _faceValue, byte _suitValue)
         {
             FaceValue = _faceValue;
             SuitValue = _suitValue;

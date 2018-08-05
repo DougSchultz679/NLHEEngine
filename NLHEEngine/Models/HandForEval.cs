@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace NLHEEngine.Models
 {
-    public class HandForEval
+    public class HandForEval : IComparable
     {
         public Card[] SevCards = new Card[7];
 
@@ -18,7 +18,7 @@ namespace NLHEEngine.Models
         }
 
         //TODO: Ensure the right winner is chosen. basically implements CompareTo
-        int Showdown(object obj)
+        int IComparable.CompareTo(object obj)
         {
             HandForEval B = (HandForEval)obj;
             try
@@ -30,7 +30,7 @@ namespace NLHEEngine.Models
                     else if (this.HandStrength[i] > B.HandStrength[i])
                         return -1;
                 }
-            } catch(IndexOutOfRangeException ex)
+            } catch (IndexOutOfRangeException ex)
             {
                 return 0;
             }

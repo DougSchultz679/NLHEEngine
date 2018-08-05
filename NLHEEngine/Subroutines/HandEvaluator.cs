@@ -9,16 +9,31 @@ namespace NLHEEngine.Subroutines
 {
     public class HandEvaluator
     {
-        //this is the grand pooh bah method
-        //public int[] GetStrength(HandForEval hnd)
-        //{
-
-        //}
-
-
-        public bool IsFlush(HandForEval hnd)
+        public byte[] GetStrength(HandForEval hnd)
         {
-            int numClub, numDia, numHrt, numSpd;
+            byte isFlush = this.IsFlush(hnd);
+            byte isStraight = this.IsStraight(hnd);
+
+            if (isFlush > 0 && isStraight > 0)
+            {
+                var strFlushStrength = this.GetStraightFlush(hnd, isFlush);
+                if (strFlushStrength[0] != 0)
+                    return strFlushStrength;
+            }
+
+            byte[] matchStrength = this.GetMatchStrength(hnd);
+
+            if (matchStrength[0] < 4) return matchStrength;
+
+            if (isFlush > 0) return this.GetFlushStrength(hnd, isFlush);
+            if (isStraight > 0) return new byte[] { 5, isStraight };
+
+            return matchStrength;
+        }
+
+        public byte IsFlush(HandForEval hnd)
+        {
+            byte numClub, numDia, numHrt, numSpd;
             numClub = numDia = numHrt = numSpd = 0;
             foreach (Card c in hnd.SevCards)
             {
@@ -30,43 +45,117 @@ namespace NLHEEngine.Subroutines
                     case 4: numDia++; break;
                 }
             }
-            if (numClub >= 5 || numDia >= 5 || numHrt >= 5 || numSpd >= 5) return true;
-            else return false;
+            if (numClub >= 5) return 1;
+            else if (numSpd >= 5) return 2;
+            else if (numHrt >= 5) return 3;
+            else if (numDia >= 5) return 4;
+            else return 0;
         }
 
-        public bool IsStraight(HandForEval hnd)
+        public byte IsStraight(HandForEval hnd)
         {
-            int strCnt = 1;
-            for (int i = 0; i < hnd.SevCards.Length; i++)
+            bool inStraight = false;
+            byte straightHigh = 0;
+            byte strCnt = 1;
+            for (byte i = 0; i < 6; i++)
             {
-                if (hnd.SevCards[i].FaceValue == hnd.SevCards[i + 1].FaceValue + 1)
+                if (!inStraight && hnd.SevCards[i].FaceValue == hnd.SevCards[i + 1].FaceValue + 1)
                 {
                     strCnt++;
-                } else
+                    straightHigh = hnd.SevCards[i].FaceValue;
+                    inStraight = true;
+                } else if (inStraight && hnd.SevCards[i].FaceValue == hnd.SevCards[i + 1].FaceValue + 1)
+                    strCnt++;
+                else if (inStraight && hnd.SevCards[i].FaceValue == hnd.SevCards[i + 1].FaceValue)
+                    ;
+                else
                 {
                     strCnt = 1;
+                    inStraight = false;
+                    straightHigh = 0;
                 }
 
-                if (i >= 3 && strCnt < 2) return false;
-                if (strCnt == 5) return true;
+                if (i >= 3 && strCnt < 2) return 0;
+                if (strCnt == 5) return straightHigh;
             }
-            return false;
+            return 0;
         }
 
-        public int[] GetMatchStrength(HandForEval hnd)
+        public byte[] GetStraightFlush(HandForEval hnd, byte suit)
+        {
+            byte[] retStrength = new byte[2];
+            byte straightHigh = 0;
+            bool inStraight = false;
+
+            byte strCnt = 1;
+            for (byte i = 0; i < 6; i++)
+            {
+                if (!inStraight
+                    && hnd.SevCards[i].FaceValue == hnd.SevCards[i + 1].FaceValue + 1
+                    && hnd.SevCards[i].SuitValue == suit
+                    && hnd.SevCards[i + 1].SuitValue == suit)
+                {
+                    strCnt++;
+                    inStraight = true;
+                    straightHigh = hnd.SevCards[i].FaceValue;
+                } else if (inStraight
+                        && hnd.SevCards[i].FaceValue == hnd.SevCards[i + 1].FaceValue + 1
+                        && hnd.SevCards[i].SuitValue == suit
+                        && hnd.SevCards[i + 1].SuitValue == suit)
+                {
+                    strCnt++;
+                } else if (inStraight && hnd.SevCards[i].FaceValue == hnd.SevCards[i + 1].FaceValue)
+                    ;
+                else
+                {
+                    strCnt = 1;
+                    inStraight = false;
+                    straightHigh = 0;
+                }
+                if (strCnt == 5)
+                {
+                    retStrength[0] = 1;
+                    retStrength[1] = straightHigh;
+                }
+            }
+            return retStrength;
+        }
+
+        public byte[] GetFlushStrength(HandForEval hnd, byte suit)
+        {
+            byte[] retStrength = new byte[6];
+            retStrength[0] = 4;
+
+            byte retIdx = 1;
+            for (byte i = 0; i < hnd.SevCards.Length; i++)
+            {
+                if (hnd.SevCards[i].SuitValue == suit)
+                {
+                    retStrength[retIdx] = hnd.SevCards[i].FaceValue;
+                    retIdx++;
+                }
+                if (retIdx == 6)
+                {
+                    break;
+                }
+            }
+            return retStrength;
+        }
+
+        public byte[] GetMatchStrength(HandForEval hnd)
         {
             //val of high pair, second best pair, set, quad
-            int[] matches = new int[4];
+            byte[] matches = new byte[4];
 
             // TODO: make sure this size will work with the best high card hand. 
             //in my model of hand strength match-type hands have a max of 5 vals
-            int[] retStrength = new int[6];
+            byte[] retStrength = new byte[6];
 
-            int grpSize = 1;
+            byte grpSize = 1;
             bool inGroup = false;
 
             //populate all useful matches into the match array
-            for (int i = 1; i < 7; i++)
+            for (byte i = 1; i < 7; i++)
             {
                 if (!inGroup && hnd.SevCards[i - 1].FaceValue == hnd.SevCards[i].FaceValue)
                 {
@@ -79,23 +168,25 @@ namespace NLHEEngine.Subroutines
                     switch (grpSize)
                     {
                         case 4:
-                            matches[3] = hnd.SevCards[i-1].FaceValue;
+                            matches[3] = hnd.SevCards[i - 1].FaceValue;
                             break;
                         case 3:
                             //handle a 2nd group of trips
                             if (matches[2] > 0 && matches[0] == 0)
                             {
-                                matches[0] = hnd.SevCards[i-1].FaceValue;
+                                matches[0] = hnd.SevCards[i - 1].FaceValue;
                                 break;
                             } else
                             {
-                                matches[2] = hnd.SevCards[i-1].FaceValue;
+                                matches[2] = hnd.SevCards[i - 1].FaceValue;
                                 break;
                             }
                         case 2:
                             if (matches[0] > 0 && matches[1] == 0)
-                                matches[1] = hnd.SevCards[i-1].FaceValue;
-                            else matches[0] = hnd.SevCards[i-1].FaceValue;
+                                matches[1] = hnd.SevCards[i - 1].FaceValue;
+                            else if (matches[0] > 0 && matches[1] > 0)
+                                break;
+                            else matches[0] = hnd.SevCards[i - 1].FaceValue;
                             break;
                     }
                     inGroup = false;
@@ -124,6 +215,8 @@ namespace NLHEEngine.Subroutines
                         case 2:
                             if (matches[0] > 0 && matches[1] == 0)
                                 matches[1] = hnd.SevCards[i - 1].FaceValue;
+                            else if (matches[0] > 0 && matches[1] > 0)
+                                break;
                             else matches[0] = hnd.SevCards[i - 1].FaceValue;
                             break;
                     }
@@ -138,7 +231,7 @@ namespace NLHEEngine.Subroutines
                 retStrength[1] = matches[3];
 
                 //fetchKicker
-                for (int i = 0; i < hnd.SevCards.Length; i++)
+                for (byte i = 0; i < hnd.SevCards.Length; i++)
                 {
                     if (hnd.SevCards[i].FaceValue != matches[3])
                     {
@@ -153,7 +246,6 @@ namespace NLHEEngine.Subroutines
                 retStrength[0] = 3;
                 retStrength[1] = matches[2];
                 retStrength[2] = matches[0];
-                //yay, no kicker noise
             }
             //trips
             else if (matches[2] > 0)
@@ -162,8 +254,8 @@ namespace NLHEEngine.Subroutines
                 retStrength[1] = matches[2];
 
                 //fetch 2 Kickers
-                int idx = 2;
-                for (int i = 0; i < hnd.SevCards.Length; i++)
+                byte idx = 2;
+                for (byte i = 0; i < hnd.SevCards.Length; i++)
                 {
                     if (hnd.SevCards[i].FaceValue != matches[2])
                     {
@@ -181,7 +273,7 @@ namespace NLHEEngine.Subroutines
                 retStrength[2] = matches[1];
 
                 //fetchKicker
-                for (int i = 0; i < hnd.SevCards.Length; i++)
+                for (byte i = 0; i < hnd.SevCards.Length; i++)
                 {
                     if (hnd.SevCards[i].FaceValue != matches[1] &&
                         hnd.SevCards[i].FaceValue != matches[0])
@@ -199,8 +291,8 @@ namespace NLHEEngine.Subroutines
 
                 //fetch 3 Kickers
                 //TODO: confirm that 3 kickers are relevant to showdown by rules
-                int idx = 2;
-                for (int i = 0; i < hnd.SevCards.Length; i++)
+                byte idx = 2;
+                for (byte i = 0; i < hnd.SevCards.Length; i++)
                 {
                     if (hnd.SevCards[i].FaceValue != matches[0])
                     {
@@ -216,13 +308,13 @@ namespace NLHEEngine.Subroutines
             return retStrength;
         }
 
-        private int[] GetHighCardStrength(HandForEval hnd)
+        private byte[] GetHighCardStrength(HandForEval hnd)
         {
-            //TODO: confirm that all 5 kickers are compared
-            int[] retStrength = new int[6];
+            //TODO: confirm that all 5 kickers are compared in the rules
+            byte[] retStrength = new byte[6];
             retStrength[0] = 9;
 
-            for (int i = 0; i < 5; i++)
+            for (byte i = 0; i < 5; i++)
                 retStrength[i + 1] = hnd.SevCards[i].FaceValue;
 
             return retStrength;
