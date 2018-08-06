@@ -10,6 +10,91 @@ namespace NLHEEngine.TestSubroutines
 {
     public class TestSubroutine
     {
+        public void TestGame()
+        {
+            List<Player> samplePlayers = new List<Player>();
+            samplePlayers.Add(new Player("Sam", 1000, 1));
+            samplePlayers.Add(new Player("Jack", 1000, 2));
+            samplePlayers.Add(new Player("Jill", 1000, 3));
+            samplePlayers.Add(new Player("Bob", 1000, 4));
+            samplePlayers.Add(new Player("Joe", 1000, 5));
+            samplePlayers.Add(new Player("Steve", 1000, 6));
+            samplePlayers.Add(new Player("Doug", 1000, 7));
+            samplePlayers.Add(new Player("Albert", 1000, 8));
+            samplePlayers.Add(new Player("Jimmy", 1000, 9));
+
+            Game newGame = new Game(samplePlayers, 50);
+            ShowPlayerCards(newGame);
+            newGame.Deal();
+            ShowBoard(newGame);
+            ShowPlayerCards(newGame);
+            newGame.Deal();
+            ShowBoard(newGame);
+            newGame.Deal();
+            ShowBoard(newGame);
+            newGame.Deal();
+            ShowBoard(newGame);
+
+        }
+
+        public void GameStateReporter(Game theGame)
+        {
+
+        }
+
+        public void ShowPlayerNames(Game theGame)
+        {
+            string[] playerHandles = new string[theGame.PlayersAtTable.Count];
+            for (int i = 0; i < playerHandles.Length; i++)
+                playerHandles[i] = theGame.PlayersAtTable[i].Handle;
+            Console.WriteLine("Players in the game: {0}", String.Join(", ", playerHandles));
+        }
+
+        public void ShowPlayerCards(Game theGame)
+        {
+            foreach (var p in theGame.PlayersAtTable)
+            {
+                if (p.HoleCards[0] != null)
+                {
+                    Console.WriteLine("{0} holds {1}: {2}, {3}: {4}",
+                                        p.Handle,
+                                        p.HoleCards[0].SuitValue,
+                                        p.HoleCards[0].FaceValue,
+                                        p.HoleCards[1].SuitValue,
+                                        p.HoleCards[1].FaceValue
+                                        );
+                } else Console.WriteLine("{0} holds no cards yet.",p.Handle);
+            }
+        }
+
+        public void ShowBoard(Game theGame)
+        {
+            Console.Write("Board holds: ");
+
+            if (theGame.BoardCards[4] != null)
+            {
+                for (int i = 0; i < 5; i++)
+                {
+                    Console.Write("{0}: {1}, ", theGame.BoardCards[i].SuitValue, theGame.BoardCards[i].FaceValue);
+                }
+            } else if(theGame.BoardCards[3] != null)
+            {
+                for (int i = 0; i < 4; i++)
+                {
+                    Console.Write("{0}: {1}, ", theGame.BoardCards[i].SuitValue, theGame.BoardCards[i].FaceValue);
+                }
+            } else if (theGame.BoardCards[2] != null)
+            {
+                for (int i =0; i < 3; i++)
+                {
+                    Console.Write("{0}: {1}, ", theGame.BoardCards[i].SuitValue, theGame.BoardCards[i].FaceValue);
+
+                }
+            } else Console.Write("Nothing yet!\n");
+            
+
+        }
+
         public void TestDeck()
         {
             Deck testDeck = new Deck();
@@ -52,9 +137,9 @@ namespace NLHEEngine.TestSubroutines
             Console.WriteLine("In Test Showdown\n");
 
             HandEvaluator HE = new HandEvaluator();
-            HandForEval[] testHands = MakeExplicitTestHands();
-            
-            for (int i = 0; i < testHands.Length-1; i += 2)
+            HandForEval[] testHands = MakeRandomTestHands();
+
+            for (int i = 0; i < testHands.Length - 1; i += 2)
             {
                 Console.WriteLine("Next Showdown");
                 Card c1, c2;
@@ -62,44 +147,22 @@ namespace NLHEEngine.TestSubroutines
                 {
                     c1 = testHands[i].SevCards[j];
                     c2 = testHands[i + 1].SevCards[j];
-                    Console.WriteLine("{0}: {1}\t {2}: {3}", 
+                    Console.WriteLine("{0}: {1}\t {2}: {3}",
                         c1.SuitValue, c1.FaceValue, c2.SuitValue, c2.FaceValue);
                 }
-                Console.WriteLine("Showdown Winner: {0}", 
-                    testHands[i].CompareTo(testHands[i+1]));
-                Console.WriteLine("A Hand Strength: {0}", String.Join(" ",testHands[i].HandStrength));
-                Console.WriteLine("A Hand Strength: {0}", String.Join(" ", testHands[i+1].HandStrength));
+                Console.WriteLine("Showdown Winner: {0}",
+                    testHands[i].CompareTo(testHands[i + 1]));
+                Console.WriteLine("A Hand Strength: {0}", String.Join(" ", testHands[i].HandStrength));
+                Console.WriteLine("B Hand Strength: {0}", String.Join(" ", testHands[i + 1].HandStrength));
 
             }
         }
 
-        public HandForEval[] MakeSixRandomTestHands()
+        public HandForEval[] MakeRandomTestHands()
         {
             Deck newDeck = new Deck();
             int deckIdx = 0;
             HandForEval[] retSet = new HandForEval[6];
-
-            for (int i = 0; i < retSet.Length; i++)
-            {
-                retSet[i] = new HandForEval(
-                    newDeck.Cards[deckIdx],
-                    newDeck.Cards[deckIdx + 1],
-                    newDeck.Cards[deckIdx + 2],
-                    newDeck.Cards[deckIdx + 3],
-                    newDeck.Cards[deckIdx + 4],
-                    newDeck.Cards[deckIdx + 5],
-                    newDeck.Cards[deckIdx + 6]
-                    );
-                deckIdx += 7;
-            }
-            return retSet;
-        }
-
-        public HandForEval[] MakeSevenRandomTestHands()
-        {
-            Deck newDeck = new Deck();
-            int deckIdx = 0;
-            HandForEval[] retSet = new HandForEval[7];
 
             for (int i = 0; i < retSet.Length; i++)
             {

@@ -10,11 +10,24 @@ namespace NLHEEngine.Models
     public class Deck
     {
         public Card[] Cards = new Card[52];
-        public int NextCard { get; set; }
+        public int CurrCardIndex { get; set; }
 
         public Deck()
         {
             Cards = MakeDeck();
+            CurrCardIndex = 0;
+        }
+
+        public void BurnCard()
+        {
+            ++CurrCardIndex;
+        }
+
+        public Card DealCard()
+        {
+            Card retCard = Cards[this.CurrCardIndex];
+            ++CurrCardIndex;
+            return retCard;
         }
 
         private Card[] MakeDeck()
@@ -81,7 +94,7 @@ namespace NLHEEngine.Models
                     }
                 }
 
-                //shuffle last 10 cards into the deck. starting from the end becuase the above actions always result in 52 being assigned to Order[51];
+                //shuffle last 10 cards into the deck. starting from the end becuase the above actions always result in 52 being assigned to Order[51]..
                 var rng2 = new Random(DateTime.Now.Minute);
                 int idx, tmp;
                 for (int k = 51; k > 41; k--)
@@ -91,10 +104,8 @@ namespace NLHEEngine.Models
                     Order[k] = Order[idx];
                     Order[idx] = tmp;
                 }
-
                 return Order;
             }
         }
-
     }
 }

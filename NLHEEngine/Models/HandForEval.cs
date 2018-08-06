@@ -20,7 +20,6 @@ namespace NLHEEngine.Models
             HandStrength = _handEvaluator.GetStrength(this);
         }
 
-        //TODO: Ensure the right winner is chosen.
         public int CompareTo(object obj)
         {
             HandForEval B = (HandForEval)obj;

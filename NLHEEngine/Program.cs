@@ -17,8 +17,8 @@ namespace NLHEEngine
 
             //TS.TestDeck();
             //TS.TestHandEvaluation();
-            TS.TestShowdown();
-
+            //TS.TestShowdown();
+            TS.TestGame();
 
             //Console.WriteLine( "***** In game loop ***** ");
 

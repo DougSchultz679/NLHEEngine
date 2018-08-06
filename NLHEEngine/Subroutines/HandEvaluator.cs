@@ -85,7 +85,7 @@ namespace NLHEEngine.Subroutines
                     straightHigh = 0;
                 }
 
-                //handle early escapes, ace to five straight and normal straight return
+                //handle looking at 4 cards and no straight yet, ace to five straight and normal straight return
                 if (i >= 3 && straightCount < 2) return 0;
                 else if (straightCount == 4 && straightHigh == 5)
                 {
@@ -131,7 +131,7 @@ namespace NLHEEngine.Subroutines
                 if (straightCount == 4 && straightHigh == 5)
                 {
                     for (byte j = 0; j<6;j++)
-                        if (hnd.SevCards[j].FaceValue==5 && hnd.SevCards[j].SuitValue == suit)
+                        if (hnd.SevCards[j].FaceValue==14 && hnd.SevCards[j].SuitValue == suit)
                         {
                             retStrength[0] = STRAIGHTFLUSH;
                             retStrength[1] = straightHigh;
