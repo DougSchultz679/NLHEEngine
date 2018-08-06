@@ -12,6 +12,7 @@ namespace NLHEEngine.Models
         public decimal StackSize { get; set; }
 
         public Card[] HoleCards = new Card[2];
+        public HandForEval HandForShowdown {get;set;}
 
         //TODO determine if deal order is necessary
         public byte DealOrder { get; set; }
@@ -29,6 +30,7 @@ namespace NLHEEngine.Models
             IsBigBlind = false;
             IsAllIn = false;
             DealOrder = _dealOrder;
+            HandForShowdown = null;
         }
 
         //TODO: decide how to handle cases where the stack amount is smaller than the blind

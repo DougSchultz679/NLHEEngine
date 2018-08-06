@@ -10,6 +10,8 @@ namespace NLHEEngine.TestSubroutines
 {
     public class TestSubroutine
     {
+        public CardReporter CR = new CardReporter();
+
         public void TestGame()
         {
             List<Player> samplePlayers = new List<Player>();
@@ -17,23 +19,23 @@ namespace NLHEEngine.TestSubroutines
             samplePlayers.Add(new Player("Jack", 1000, 2));
             samplePlayers.Add(new Player("Jill", 1000, 3));
             samplePlayers.Add(new Player("Bob", 1000, 4));
-            samplePlayers.Add(new Player("Joe", 1000, 5));
-            samplePlayers.Add(new Player("Steve", 1000, 6));
-            samplePlayers.Add(new Player("Doug", 1000, 7));
-            samplePlayers.Add(new Player("Albert", 1000, 8));
-            samplePlayers.Add(new Player("Jimmy", 1000, 9));
+            //samplePlayers.Add(new Player("Joe", 1000, 5));
+            //samplePlayers.Add(new Player("Steve", 1000, 6));
+            //samplePlayers.Add(new Player("Doug", 1000, 7));
+            //samplePlayers.Add(new Player("Albert", 1000, 8));
+            //samplePlayers.Add(new Player("Jimmy", 1000, 9));
 
             Game newGame = new Game(samplePlayers, 50);
-            ShowPlayerCards(newGame);
+            newGame.Deal();
+            newGame.Deal();
+            newGame.Deal();
             newGame.Deal();
             ShowBoard(newGame);
             ShowPlayerCards(newGame);
-            newGame.Deal();
-            ShowBoard(newGame);
-            newGame.Deal();
-            ShowBoard(newGame);
-            newGame.Deal();
-            ShowBoard(newGame);
+            newGame.ShowdownSinglePot();
+            Console.Write("Winners are: ");
+            foreach (var p in newGame.WinningPlayers)
+                Console.WriteLine("{0}",p.Handle);
 
         }
 
@@ -56,14 +58,14 @@ namespace NLHEEngine.TestSubroutines
             {
                 if (p.HoleCards[0] != null)
                 {
-                    Console.WriteLine("{0} holds {1}: {2}, {3}: {4}",
+                    Console.WriteLine("{0} holds {1}{2}, {3}{4}",
                                         p.Handle,
-                                        p.HoleCards[0].SuitValue,
-                                        p.HoleCards[0].FaceValue,
-                                        p.HoleCards[1].SuitValue,
-                                        p.HoleCards[1].FaceValue
+                                        CR.GetFace(p.HoleCards[0]),
+                                        CR.GetSuit(p.HoleCards[0]),
+                                        CR.GetFace(p.HoleCards[1]),
+                                        CR.GetSuit(p.HoleCards[1])
                                         );
-                } else Console.WriteLine("{0} holds no cards yet.",p.Handle);
+                } else Console.WriteLine("{0} holds no cards yet.", p.Handle);
             }
         }
 
@@ -75,24 +77,31 @@ namespace NLHEEngine.TestSubroutines
             {
                 for (int i = 0; i < 5; i++)
                 {
-                    Console.Write("{0}: {1}, ", theGame.BoardCards[i].SuitValue, theGame.BoardCards[i].FaceValue);
+                    Console.Write("{0}{1}, ",
+                        CR.GetFace(theGame.BoardCards[i]),
+                        CR.GetSuit(theGame.BoardCards[i])
+                        );
                 }
-            } else if(theGame.BoardCards[3] != null)
+            } else if (theGame.BoardCards[3] != null)
             {
                 for (int i = 0; i < 4; i++)
-                {
-                    Console.Write("{0}: {1}, ", theGame.BoardCards[i].SuitValue, theGame.BoardCards[i].FaceValue);
+                //{
+                    Console.Write("{0}{1}, ",
+                        CR.GetSuit(theGame.BoardCards[i]),
+                        CR.GetFace(theGame.BoardCards[i]));
                 }
             } else if (theGame.BoardCards[2] != null)
             {
-                for (int i =0; i < 3; i++)
+                for (int i = 0; i < 3; i++)
                 {
-                    Console.Write("{0}: {1}, ", theGame.BoardCards[i].SuitValue, theGame.BoardCards[i].FaceValue);
+                    Console.Write("{0}{1}, ",
+                        CR.GetSuit(theGame.BoardCards[i]),
+                        CR.GetFace(theGame.BoardCards[i]));
 
                 }
             } else Console.Write("Nothing yet!\n");
-            
 
+            Console.WriteLine();
         }
 
         public void TestDeck()

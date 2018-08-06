@@ -21,6 +21,7 @@ namespace NLHEEngine.Models
         public int CurrBoardIdx { get; set; }
 
         public decimal Pot { get; set; }
+        public bool IsSinglePot { get; set; }
         public List<decimal> SidePots { get; set; }
         public List<List<Player>> SidePotMembers { get; set; }
 
@@ -29,6 +30,7 @@ namespace NLHEEngine.Models
         public Game(List<Player> _playersAtStart, decimal _bigBlindAmount)
         {
             Pot = 0.0m;
+            IsSinglePot = true;
             SidePots = new List<decimal>();
             BigBlindAmount = _bigBlindAmount;
             SmallBlindAmount = BigBlindAmount / 2;
@@ -41,10 +43,50 @@ namespace NLHEEngine.Models
             BoardCards = new Card[5];
         }
 
-        //PICKUP
         //creates winnerList
+        //TODO: can this be written more cleanly? 
         public void ShowdownSinglePot()
         {
+            Console.WriteLine("Hand Strength");
+            foreach (var p in this.PlayersInHand)
+            {
+                p.HandForShowdown = new HandForEval(this.BoardCards.Concat(p.HoleCards).ToArray());
+
+                //TODO: Test stuff; remove
+                Console.WriteLine("{0}: {1}",
+                    p.Handle,
+                    String.Join("|", p.HandForShowdown.HandStrength));
+            }
+
+            int result, topPlayerIdx;
+            topPlayerIdx = 0;
+            bool checkTies = false;
+
+            //find the player with the best hand
+            for (int i = 1; i < PlayersInHand.Count; i++)
+            {
+                result = PlayersInHand[i].HandForShowdown.CompareTo(
+                    PlayersInHand[topPlayerIdx].HandForShowdown);
+                switch (result)
+                {
+                    case 1:
+                        topPlayerIdx = i; break;
+                    //TODO: Test these
+                    case 0:
+                        checkTies = true; break;
+                    case -1:
+                        break;
+                }
+            }
+            this.WinningPlayers.Add(PlayersInHand[topPlayerIdx]);
+            this.PlayersInHand.Remove(PlayersInHand[topPlayerIdx]);
+
+            if (checkTies)
+            {
+                foreach (var p in PlayersInHand)
+                    if (WinningPlayers[0].HandForShowdown.CompareTo(p.HandForShowdown) == 0)
+                        WinningPlayers.Add(p);
+            }
 
         }
 
@@ -87,6 +129,7 @@ namespace NLHEEngine.Models
         }
 
         //TODO: side pots need to be dealt with
+        //TODO: this method needs to be manually called right now. Is this the best way to get to the next game?
         public void DistributeSinglePot()
         {
             int numWinners = WinningPlayers.Count;
@@ -97,8 +140,8 @@ namespace NLHEEngine.Models
             this.Pot = 0;
         }
 
-        
 
-        
+
+
     }
 }

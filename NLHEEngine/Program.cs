@@ -15,10 +15,26 @@ namespace NLHEEngine
 
             TestSubroutine TS = new TestSubroutine();
 
+            //  ****** Test Showdown loop *******
+            //string input = "y";
+            //while (input.Equals("y"))
+            //{
+            //    TS.TestShowdown();
+            //    Console.WriteLine("Run Showdown Test? y/n");
+            //    input = Console.ReadLine();
+            //}
+
             //TS.TestDeck();
             //TS.TestHandEvaluation();
-            //TS.TestShowdown();
-            TS.TestGame();
+
+            string input = "y";
+            while (input.Equals("y"))
+            {
+                TS.TestGame();
+                Console.WriteLine("Run Showdown Test? y/n");
+                input = Console.ReadLine();
+            }
+            
 
             //Console.WriteLine( "***** In game loop ***** ");
 
