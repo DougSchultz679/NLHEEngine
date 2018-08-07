@@ -85,18 +85,20 @@ namespace NLHEEngine.TestSubroutines
             } else if (theGame.BoardCards[3] != null)
             {
                 for (int i = 0; i < 4; i++)
-                //{
+                {
                     Console.Write("{0}{1}, ",
-                        CR.GetSuit(theGame.BoardCards[i]),
-                        CR.GetFace(theGame.BoardCards[i]));
+                        CR.GetFace(theGame.BoardCards[i]),
+                        CR.GetSuit(theGame.BoardCards[i])
+                        );
                 }
             } else if (theGame.BoardCards[2] != null)
             {
                 for (int i = 0; i < 3; i++)
                 {
                     Console.Write("{0}{1}, ",
-                        CR.GetSuit(theGame.BoardCards[i]),
-                        CR.GetFace(theGame.BoardCards[i]));
+                        CR.GetFace(theGame.BoardCards[i]),
+                        CR.GetSuit(theGame.BoardCards[i])
+                        );
 
                 }
             } else Console.Write("Nothing yet!\n");

@@ -247,7 +247,7 @@ namespace NLHEEngine.Subroutines
                 }
             }
 
-            //create the hand strength from the matches found
+            //assign the hand strength from the matches found
             //quads
             if (matches[3] > 0)
             {

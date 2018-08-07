@@ -21,17 +21,23 @@ namespace NLHEEngine.Models
         public int CurrBoardIdx { get; set; }
 
         public decimal Pot { get; set; }
-        public bool IsSinglePot { get; set; }
+        public byte NumSidePot { get; set; }
         public List<decimal> SidePots { get; set; }
         public List<List<Player>> SidePotMembers { get; set; }
+        public List<List<Player>> SidePotWinners { get; set; }
 
+        public List<BettingRound> BettingRounds { get; set; }
+
+        public byte RoundState { get; set; }
         public byte DealState { get; set; }
 
         public Game(List<Player> _playersAtStart, decimal _bigBlindAmount)
         {
             Pot = 0.0m;
-            IsSinglePot = true;
+            NumSidePot = 0;
             SidePots = new List<decimal>();
+            SidePotMembers = new List<List<Player>>();
+            SidePotWinners = new List<List<Player>>();
             BigBlindAmount = _bigBlindAmount;
             SmallBlindAmount = BigBlindAmount / 2;
             PlayersAtTable = _playersAtStart;
@@ -41,53 +47,6 @@ namespace NLHEEngine.Models
             GameDeck = new Deck();
             CurrBoardIdx = 0;
             BoardCards = new Card[5];
-        }
-
-        //creates winnerList
-        //TODO: can this be written more cleanly? 
-        public void ShowdownSinglePot()
-        {
-            Console.WriteLine("Hand Strength");
-            foreach (var p in this.PlayersInHand)
-            {
-                p.HandForShowdown = new HandForEval(this.BoardCards.Concat(p.HoleCards).ToArray());
-
-                //TODO: Test stuff; remove
-                Console.WriteLine("{0}: {1}",
-                    p.Handle,
-                    String.Join("|", p.HandForShowdown.HandStrength));
-            }
-
-            int result, topPlayerIdx;
-            topPlayerIdx = 0;
-            bool checkTies = false;
-
-            //find the player with the best hand
-            for (int i = 1; i < PlayersInHand.Count; i++)
-            {
-                result = PlayersInHand[i].HandForShowdown.CompareTo(
-                    PlayersInHand[topPlayerIdx].HandForShowdown);
-                switch (result)
-                {
-                    case 1:
-                        topPlayerIdx = i; break;
-                    //TODO: Test these
-                    case 0:
-                        checkTies = true; break;
-                    case -1:
-                        break;
-                }
-            }
-            this.WinningPlayers.Add(PlayersInHand[topPlayerIdx]);
-            this.PlayersInHand.Remove(PlayersInHand[topPlayerIdx]);
-
-            if (checkTies)
-            {
-                foreach (var p in PlayersInHand)
-                    if (WinningPlayers[0].HandForShowdown.CompareTo(p.HandForShowdown) == 0)
-                        WinningPlayers.Add(p);
-            }
-
         }
 
         public void Deal()
@@ -128,8 +87,113 @@ namespace NLHEEngine.Models
             this.DealState++;
         }
 
-        //TODO: side pots need to be dealt with
-        //TODO: this method needs to be manually called right now. Is this the best way to get to the next game?
+        public void CreateSidePot(List<Player> playersForSidepot, decimal sidePotSize)
+        {
+            this.SidePotMembers.Add(playersForSidepot);
+            this.SidePots.Add(sidePotSize);
+            this.Pot = 0.0m;
+            this.NumSidePot++;
+        }
+
+        //creates winnerList
+        //TODO: can this be written more cleanly? 
+        public void ShowdownSinglePot()
+        {
+            foreach (var p in this.PlayersInHand)
+            {
+                p.HandForShowdown = new HandForEval(this.BoardCards.Concat(p.HoleCards).ToArray());
+            }
+
+            int result, topPlayerIdx;
+            topPlayerIdx = 0;
+            bool checkTies = false;
+
+            //find the player with the best hand
+            for (int i = 1; i < PlayersInHand.Count; i++)
+            {
+                result = PlayersInHand[i].HandForShowdown.CompareTo(
+                    PlayersInHand[topPlayerIdx].HandForShowdown);
+                switch (result)
+                {
+                    case 1:
+                        topPlayerIdx = i; break;
+                    //TODO: Test these
+                    case 0:
+                        checkTies = true; break;
+                    case -1:
+                        break;
+                }
+            }
+            this.WinningPlayers.Add(PlayersInHand[topPlayerIdx]);
+            this.PlayersInHand.Remove(PlayersInHand[topPlayerIdx]);
+
+            if (checkTies)
+            {
+                foreach (var p in PlayersInHand)
+                    if (WinningPlayers[0].HandForShowdown.CompareTo(p.HandForShowdown) == 0)
+                        WinningPlayers.Add(p);
+            }
+
+        }
+
+        //TODO: test this. Note this does NOT showdown the main pot. Should it? 
+        public void ShowdownMultiPot()
+        {
+            //Every player from the first side pot gets their hand strength evaluated
+            foreach(var p in SidePotMembers[0])
+            {
+                p.HandForShowdown = new HandForEval(this.BoardCards.Concat(p.HoleCards).ToArray());
+            }
+
+            int result, topPlayerIdx;
+            topPlayerIdx = 0;
+            bool checkTies = false;
+            List<Player> thisSidePotMembers = new List<Player>();
+            List<Player> thisSidePotWinners = new List<Player>();
+
+            //For each side pot we get a list of winners and populate it in order to the winnerList
+            for (int i = 0; i < SidePots.Count; i++)
+            {
+                thisSidePotMembers = SidePotMembers[i];
+                //find the player with the best hand
+                for (int j = 1; i < thisSidePotMembers.Count; i++)
+                {
+                    result = thisSidePotMembers[j].HandForShowdown.CompareTo(
+                        thisSidePotMembers[topPlayerIdx].HandForShowdown);
+                    switch (result)
+                    {
+                        case 1:
+                            topPlayerIdx = j; break;
+                        //TODO: Test these
+                        case 0:
+                            checkTies = true; break;
+                        case -1:
+                            break;
+                    }
+                }
+
+                thisSidePotWinners.Add(thisSidePotMembers[topPlayerIdx]);
+                thisSidePotMembers.Remove(thisSidePotMembers[topPlayerIdx]);
+
+                if (checkTies)
+                {
+                    foreach (var p in thisSidePotMembers)
+                        if (thisSidePotWinners[0].HandForShowdown.CompareTo(p.HandForShowdown) == 0)
+                            thisSidePotWinners.Add(p);
+                }
+
+                this.SidePotWinners.Add(thisSidePotWinners);
+
+                //set to default for next side pot
+                thisSidePotWinners = new List<Player>();
+                topPlayerIdx = 0;
+                checkTies = false;
+            }
+        }
+
+        
+
+        //TODO: this method needs to be manually called right now. Should it be part of showdown single pot?
         public void DistributeSinglePot()
         {
             int numWinners = WinningPlayers.Count;
@@ -140,8 +204,10 @@ namespace NLHEEngine.Models
             this.Pot = 0;
         }
 
+        //TODO: PICKUP here. need to contend with whether 
+        public void DistributeMultiPot()
+        {
 
-
-
+        }
     }
 }
